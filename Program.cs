@@ -1,4 +1,5 @@
 ﻿using Algorithms.Transfomations;
+using Algorithms.Chess;
 
 namespace Algorithms
 {
@@ -30,7 +31,7 @@ namespace Algorithms
 
 
             //Permutation
-            if (true)
+            if (false)
             {
                 Console.WriteLine("Permutations");
                 int[] data = { 1, 2, 3 };
@@ -44,7 +45,7 @@ namespace Algorithms
             }
 
             //Combination
-            if (true)
+            if (false)
             {
                 Console.WriteLine("Combinations");
                 Combination<int> comb = new Combination<int>();
@@ -54,7 +55,7 @@ namespace Algorithms
             }
 
             //Variation
-            if (true)
+            if (false)
             {
                 Console.WriteLine("Variations");
                 Variation<int> variation = new Variation<int>();
@@ -64,6 +65,32 @@ namespace Algorithms
                 Console.WriteLine();
                 Console.WriteLine("===========================================");
                 Console.WriteLine();
+            }
+
+            //Knight
+
+            // Metoda backtrackingu do rozwiązywania problemu trasy skoczka na szachownicy
+            // Opiera się na próbie wszystkich możliwych ruchów skoczka, cofaniu się i ponownym próbowaniu nowych ścieżek
+
+            // 1. Rozpoczynamy od ustalenia pozycji startowej na szachownicy.
+
+            // 2. Dla danej pozycji skoczka, sprawdzamy wszystkie możliwe ruchy (8 ruchów zgodnie z regułami poruszania się skoczka na szachownicy).
+
+            // 3. Dla każdego możliwego ruchu:
+            //    - Sprawdzamy, czy nowa pozycja mieści się w granicach szachownicy i czy pole nie zostało wcześniej odwiedzone.
+            //    - Jeśli warunki są spełnione, oznaczamy to pole jako odwiedzone i przechodzimy do następnego ruchu skoczka.
+
+            // 4. Rekurencyjnie powtarzamy kroki 2 i 3 dla kolejnych ruchów skoczka, aż znajdziemy poprawną trasę lub wykorzystamy wszystkie możliwości.
+
+            // 5. Jeśli znaleziono poprawną trasę (skoczek odwiedził każde pole na szachownicy dokładnie raz), zwracamy sukces.
+            //    W przeciwnym razie, jeśli wszystkie możliwe ruchy zostały sprawdzone, ale nie znaleziono rozwiązania, zwracamy brak rozwiązania.
+
+            if (true)
+            {
+                Console.WriteLine("Knight Tour Problem");
+                Knight knight = new Knight();
+                knight.SolveKnightTour(6, 1, 1);
+                knight.FindAllSolutions(5, 1, 1);
             }
         }
     }
