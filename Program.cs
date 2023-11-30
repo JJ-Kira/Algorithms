@@ -1,4 +1,12 @@
-﻿using Algorithms.Transfomations;
+﻿//#define PERMUTATION
+//#define VARIATION
+//#define COMBINATION
+//#define KNIGHT
+//#define QUEEN
+#define H_KNIGHT
+#define H_QUEEN
+
+using Algorithms.Transfomations;
 using Algorithms.Chess;
 
 namespace Algorithms
@@ -29,43 +37,38 @@ namespace Algorithms
             // - Wariacja vs. Kombinacja: W wariacji kolejność ma znaczenie, a w kombinacji kolejność nie ma znaczenia.
             // - Permutacja vs. Kombinacja: Permutacja uwzględnia kolejność i używa wszystkich elementów, podczas gdy kombinacja ignoruje kolejność i uwzględnia jedynie wybór elementów.
 
+            int[] data = { 1, 2, 3 };
 
             // Permutation
-            if (false)
-            {
-                Console.WriteLine("Permutations");
-                int[] data = { 1, 2, 3 };
-                float[] data2 = { 3.1F, 1.4F, 4.1F };
-                string[] data3 = { "raz", "dwa", "trzy" };
+#if PERMUTATION
+            Console.WriteLine("Permutations");
+            float[] data2 = { 3.1F, 1.4F, 4.1F };
+            string[] data3 = { "raz", "dwa", "trzy" };
 
-                int[] timeUsed = { 2, 1, 1 };
-                Permutation<int> perm = new Permutation<int>();
-                perm.PermuteAndPrint(data, timeUsed);
-                Console.WriteLine();
-            }
+            int[] timeUsed = { 2, 1, 1 };
+            Permutation<int> perm = new Permutation<int>();
+            perm.PermuteAndPrint(data, timeUsed);
+            Console.WriteLine();
+#endif
 
             // Combination
-            if (false)
-            {
-                Console.WriteLine("Combinations");
-                Combination<int> comb = new Combination<int>();
-                int[] data = { 1, 2, 3 };
-                comb.CombinateAndPrint(data, 2);
-                Console.WriteLine();
-            }
+#if COMBINATION
+            Console.WriteLine("Combinations");
+            Combination<int> comb = new Combination<int>();
+            comb.CombinateAndPrint(data, 2);
+            Console.WriteLine();
+#endif
 
             // Variation
-            if (false)
-            {
-                Console.WriteLine("Variations");
-                Variation<int> variation = new Variation<int>();
-                int[] data = { 1, 2, 3 };
-                int[] timeUsed = { 1, 1, 1 };
-                variation.VariateAndPrint(data, 2, timeUsed, false);
-                Console.WriteLine();
-                Console.WriteLine("===========================================");
-                Console.WriteLine();
-            }
+#if VARIATION
+            Console.WriteLine("Variations");
+            Variation<int> variation = new Variation<int>();
+            int[] timesUsed = { 1, 1, 1 };
+            variation.VariateAndPrint(data, 2, timesUsed, false);
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
+#endif
 
             // Zadanie 2 - problem skoczka
 
@@ -85,13 +88,12 @@ namespace Algorithms
             // 5. Jeśli znaleziono poprawną trasę (skoczek odwiedził każde pole na szachownicy dokładnie raz), zwracamy sukces.
             //    W przeciwnym razie, jeśli wszystkie możliwe ruchy zostały sprawdzone, ale nie znaleziono rozwiązania, zwracamy brak rozwiązania.
 
-            if (false)
-            {
-                Console.WriteLine("Knight Tour Problem");
-                Knight knight = new Knight();
-                knight.SolveKnightTour(6, 1, 1);
-                knight.FindAllSolutions(5, 1, 1);
-            }
+#if KNIGHT
+            Console.WriteLine("Knight Tour Problem");
+            Knight knight = new Knight();
+            knight.SolveKnightTour(6, 1, 1);
+            knight.FindAllSolutions(5, 1, 1);
+#endif
 
             // Zadanie 3 - problem N hetmanów
 
@@ -127,14 +129,50 @@ namespace Algorithms
             // są już zajęte. Gdy algorytm cofa się (backtracking), wartości te są resetowane na true,
             // co oznacza ponowne uwolnienie tych linii.
 
-            if (true)
-            {
-                Queen queen = new Queen();
-                queen.SingleSolveQueens(8);
-                queen.SolveAllQueens(14);
-                // granica "rozsądnego" czasu z uwzględnieniem wypisania wyników to 10
-                // dla samych obliczeń to 14 (zajmuję trochę ponad 6 s)
-            }
+#if QUEEN
+            Queen queen = new Queen();
+            queen.SingleSolveQueens(8);
+            queen.SolveAllQueens(14);
+            // granica "rozsądnego" czasu z uwzględnieniem wypisania wyników to 10
+            // dla samych obliczeń to 14 (zajmuję trochę ponad 6 s)  
+#endif
+
+            // Zadanie 4 - wersje heurystyczne
+
+            // implementacja skoczka szachowego z regułą Warnsdorfa
+
+            // Podsumowanie reguły Warnsdorfa:
+            // Reguła Warnsdorfa to heurystyka używana do rozwiązywania problemu trasy skoczka (Knight's Tour) w szachach.
+            // Problem trasy skoczka polega na znalezieniu ścieżki skoczka, który odwiedza każde pole szachownicy dokładnie raz.
+
+            // Jak działa reguła Warnsdorfa:
+            // 1. Skoczek zaczyna od dowolnego pola na szachownicy.
+            // 2. W każdym ruchu skoczek wybiera pole, z którego ma najmniej możliwości dalszego ruchu.
+            //    - To znaczy, że wybiera pole, z którego może się przenieść na najmniejszą liczbę nieodwiedzonych jeszcze pól.
+            // 3. Proces jest powtarzany aż do odwiedzenia wszystkich pól lub do momentu, gdy nie można już wykonać żadnego ruchu.
+
+            // Zastosowanie w tym kodzie:
+            // - `CheckDegree(int x, int y)`: Metoda ta oblicza liczbę możliwych ruchów z każdego potencjalnego następnego pola.
+            //   Wybiera ruch, który prowadzi do pola z najmniejszą liczbą możliwych dalszych ruchów.
+            // - `Warnsdorff(int i, int x, int y, ref bool q)`: Metoda rekurencyjnie próbuje rozwiązać problem trasy skoczka,
+            //   stosując regułę Warnsdorfa. Jeśli napotka ślepy zaułek (brak dalszych ruchów), cofa się (backtracking) i próbuje innego ruchu.
+
+            // Kluczowe kroki w regule Warnsdorfa:
+            // 1. Wybór początkowego pola.
+            // 2. W każdym kroku, wybór następnego pola z najmniejszą liczbą możliwych dalszych ruchów.
+            // 3. Kontynuacja procesu aż do odwiedzenia wszystkich pól lub stwierdzenia, że dalszy ruch nie jest możliwy.
+
+#if H_KNIGHT
+            WarnsdorffKnight warnsdorfKnight = new WarnsdorffKnight();
+            warnsdorfKnight.SolveKnightTour(30, 25, 7); 
+#endif
+
+            // algorytm “gradientowy” dla problemu hetmanów
+
+#if H_QUEEN
+            GradientQueen heuristicQueen = new GradientQueen();
+            heuristicQueen.SolveNQueens(24); 
+#endif
         }
     }
 }
