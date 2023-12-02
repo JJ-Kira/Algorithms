@@ -164,10 +164,33 @@ namespace Algorithms
 
 #if H_KNIGHT
             WarnsdorffKnight warnsdorfKnight = new WarnsdorffKnight();
-            warnsdorfKnight.SolveKnightTour(30, 25, 7); 
+            warnsdorfKnight.SolveKnightTour(30, 25, 7);
 #endif
 
-            // algorytm “gradientowy” dla problemu hetmanów
+            // Metoda gradientowa jako heurystyka w problemie N Hetmanów
+
+            /*
+             * 1. Co to jest metoda gradientowa (heurystyczna)?
+             *    - Metoda gradientowa to heurystyczna technika optymalizacji, która polega na iteracyjnym
+             *      poprawianiu rozwiązania w kierunku zmniejszania "kosztu" lub "konfliktu".
+             *    - W kontekście problemu N Hetmanów, "konflikty" to sytuacje, gdzie hetmany atakują się nawzajem.
+             *
+             * 2. Jak stosuje się ją do problemu N Hetmanów?
+             *    - Rozpoczynamy od losowego rozmieszczenia hetmanów na szachownicy.
+             *    - Następnie iteracyjnie przesuwamy hetmany w taki sposób, aby zmniejszyć liczbę konfliktów (hetmanów atakujących się nawzajem).
+             *
+             * 3. Kluczowe kroki w tej implementacji:
+             *    a. Inicjalizacja: Hetmany są umieszczane losowo, każdy w innej kolumnie (metoda Permutation).
+             *    b. Ocena konfliktów: Sprawdzamy, czy dany hetman jest atakowany przez innego (metoda IsUnderAttack).
+             *    c. Redukcja konfliktów: Próbujemy zamienić miejscami pary hetmanów, aby zmniejszyć liczbę konfliktów (metoda ReductionOfCollisionsCheck).
+             *    d. Iteracyjne ulepszanie: Powtarzamy proces zamiany hetmanów, dopóki nie znajdziemy rozwiązania bez konfliktów (metoda QueenSearch).
+             *    e. Wizualizacja rozwiązania: Po znalezieniu rozwiązania, wyświetlamy położenie hetmanów na szachownicy (metoda PrintQueensPositions).
+             *
+             * 4. Uwagi:
+             *    - Metoda ta nie gwarantuje znalezienia optymalnego rozwiązania.
+             *    - Może istnieć ryzyko utknięcia w lokalnym minimum (konfiguracji, która nie jest rozwiązaniem optymalnym, ale żadna pojedyncza zmiana nie prowadzi do poprawy).
+             *    - Skuteczność metody zależy od początkowej konfiguracji i strategii wyboru par hetmanów do zamiany.
+             */
 
 #if H_QUEEN
             GradientQueen heuristicQueen = new GradientQueen();
