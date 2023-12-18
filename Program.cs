@@ -6,10 +6,13 @@
 //#define H_KNIGHT
 //#define H_QUEEN
 #define HASH
+#define KRUSKAL
 
 using Algorithms.Transfomations;
 using Algorithms.Chess;
 using Algorithms.Other;
+using Algorithms.Graphs;
+using System.Reflection;
 
 namespace Algorithm
 {
@@ -95,6 +98,10 @@ namespace Algorithm
             Knight knight = new Knight();
             knight.SolveKnightTour(6, 1, 1);
             knight.FindAllSolutions(5, 1, 1);
+
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
 #endif
 
             // Zadanie 3 - problem N hetmanów
@@ -137,6 +144,10 @@ namespace Algorithm
             queen.SolveAllQueens(14);
             // granica "rozsądnego" czasu z uwzględnieniem wypisania wyników to 10
             // dla samych obliczeń to 14 (zajmuję trochę ponad 6 s)  
+
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
 #endif
 
             // Zadanie 4 - wersje heurystyczne
@@ -167,6 +178,10 @@ namespace Algorithm
 #if H_KNIGHT
             WarnsdorffKnight warnsdorfKnight = new WarnsdorffKnight();
             warnsdorfKnight.SolveKnightTour(30, 25, 7);
+
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
 #endif
 
             // Metoda gradientowa jako heurystyka w problemie N Hetmanów
@@ -197,6 +212,10 @@ namespace Algorithm
 #if H_QUEEN
             GradientQueen heuristicQueen = new GradientQueen();
             heuristicQueen.SolveNQueens(24); 
+
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
 #endif
 
             // Zadanie 5 - hashowanie
@@ -250,7 +269,72 @@ namespace Algorithm
             hashTable1.HashInsert(ints1);
             hashTable0.HashInsert(doubles1);
             hashTable2.PrintHashTable();
+
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
 #endif
+
+#if KRUSKAL
+            // Zadanie 6 - Kruskal union-find
+
+            //https://wazniak.mimuw.edu.pl/index.php?title=Algorytmy_i_struktury_danych/Find-Union#Kompresja_%C5%9Bcie%C5%BCki
+
+            // Struktura danych Union-Find służy do reprezentowania zbiorów rozłącznych.
+            // Pozwala na operacje łączenia (union) dwóch zbiorów oraz znajdowania (find) reprezentanta zbioru.
+            // Kompresja ścieżki (path compression) jest techniką optymalizacji działania algorytmu find,
+            // która polega na zmianie każdego odwiedzonego węzła na węzeł reprezentanta zbioru, redukując długość ścieżki.
+
+            // Algorytm Kruskala to algorytm wyboru minimalnego drzewa rozpinającego w grafie.
+            // Polega na iteracyjnym dodawaniu najlżejszych krawędzi, które nie tworzą cyklu.
+            // Etapy działania algorytmu obejmują sortowanie krawędzi według wagi,
+            // następnie iteracyjne dodawanie krawędzi do drzewa rozpinającego, jeśli nie tworzą cyklu.
+            // W algorytmie wykorzystywana jest struktura Union-Find do śledzenia połączeń między wierzchołkami.
+
+            // Algorytm Kruskala z union-find opartym o drzewa z kompresją ścieżki (log∗) łączy w sobie
+            // wydajność algorytmu Kruskala z optymalizacją związaną z kompresją ścieżki (z logarytmicznym czasem operacji).
+
+            // Główne kroki algorytmu Kruskala z użyciem Union-Find z kompresją ścieżki:
+            // 1. Inicjalizacja: Tworzenie zbioru dla każdego wierzchołka grafu.
+            // 2. Sortowanie krawędzi: Sortowanie wszystkich krawędzi grafu według wag (rosnąco lub malejąco).
+            // 3. Iteracja przez posortowane krawędzie: Wybieranie krawędzi zgodnie z ich kolejnością.
+            // 4. Sprawdzenie cyklu: Dla każdej krawędzi sprawdzenie, czy wierzchołki, które łączy, należą do różnych zbiorów.
+            //    Jeśli tak, łączenie zbiorów za pomocą operacji union w strukturze Union-Find.
+            // 5. Zakończenie: Powtarzanie kroków 3-4 aż do momentu, gdy wszystkie wierzchołki zostaną połączone w jedno drzewo.
+            //    W wyniku otrzymujemy minimalne drzewo rozpinające (MST) dla danego grafu.
+
+            // Kompresja ścieżki (log∗): Jest to ulepszona forma kompresji ścieżki, która gwarantuje bardzo krótki czas wykonania operacji find.
+            // W optymalnych warunkach, gdzie n jest bardzo duże, czas operacji find jest bliski logarytmicznemu (∗) przy użyciu tej techniki.
+
+            // Minimum Spanning Tree (MST) to podgraf spójny w grafie ważonym,
+            // który zawiera wszystkie wierzchołki oryginalnego grafu oraz jest drzewem (acyklicznym grafem spójnym).
+            // Jest to drzewo rozpinające o minimalnej sumie wag krawędzi, łączące wszystkie wierzchołki grafu.
+            // MST w grafach ważonych jest użyteczny do znalezienia najtańszej sieci połączeń
+            // lub minimalnego zbioru krawędzi, które połączą wszystkie wierzchołki w grafie.
+
+            // Algorytmy takie jak algorytm Kruskala lub algorytm Prima są używane do znalezienia MST w grafach ważonych.
+            // Algorytm Kruskala wybiera krawędzie o najmniejszej wadze, tworząc MST etapami,
+            // podczas gdy algorytm Prima zaczyna od jednego wierzchołka i rośnie, dodając najtańsze krawędzie,
+            // aż do utworzenia całego drzewa rozpinającego (MST).
+
+            // MST ma wiele zastosowań, takich jak sieci komunikacyjne, trasowanie w sieciach komputerowych,
+            // rozmieszczanie sieci telekomunikacyjnych, zarządzanie projektem, itp.
+
+
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\graph.txt");
+            Graph graph = new Graph(path, true);
+            graph.PrintGraph();
+            Console.WriteLine("----------------");
+
+            KruskalUnionFind kruskalUF = new KruskalUnionFind(graph);
+            kruskalUF.KruskalAlgorithm();
+            kruskalUF.PrintMST();
+
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
+#endif
+
         }
     }
 }
