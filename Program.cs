@@ -5,8 +5,9 @@
 //#define QUEEN
 //#define H_KNIGHT
 //#define H_QUEEN
-#define HASH
-#define KRUSKAL
+//#define HASH
+//#define KRUSKAL
+#define IICNF
 
 using Algorithms.Transfomations;
 using Algorithms.Chess;
@@ -275,7 +276,6 @@ namespace Algorithm
             Console.WriteLine();
 #endif
 
-#if KRUSKAL
             // Zadanie 6 - Kruskal union-find
 
             //https://wazniak.mimuw.edu.pl/index.php?title=Algorytmy_i_struktury_danych/Find-Union#Kompresja_%C5%9Bcie%C5%BCki
@@ -320,7 +320,7 @@ namespace Algorithm
             // MST ma wiele zastosowań, takich jak sieci komunikacyjne, trasowanie w sieciach komputerowych,
             // rozmieszczanie sieci telekomunikacyjnych, zarządzanie projektem, itp.
 
-
+#if KRUSKAL
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\graph.txt");
             Graph graph = new Graph(path, true);
             graph.PrintGraph();
@@ -329,6 +329,64 @@ namespace Algorithm
             KruskalUnionFind kruskalUF = new KruskalUnionFind(graph);
             kruskalUF.KruskalAlgorithm();
             kruskalUF.PrintMST();
+
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
+#endif
+
+            // Zadanie 7 - 2-CNF
+
+            // Spełnialność wyrażenia logicznego odnosi się do możliwości znalezienia wartości logicznych zmiennych,
+            // tak aby wyrażenie to przyjęło wartość prawdziwą (true).
+
+            // 2-CNF (2 Conjunctive Normal Form) to forma normalna wyrażeń logicznych,
+            // w której każda klauzula składa się z co najwyżej dwóch literałów (zmiennych lub ich negacji),
+            // połączonych operatorem alternatywy (OR), a całe wyrażenie jest iloczynem klauzul (AND).
+
+            // Silnie spójne składowe (SCC - Strongly Connected Components) to części grafu, 
+            // w których każdy wierzchołek jest osiągalny z każdego innego w tej samej składowej.
+
+            // Badanie spełnialności wyrażenia logicznego 2-CNF poprzez silnie spójne składowe 
+            // polega na reprezentacji wyrażenia 2-CNF jako grafu, a następnie badaniu jego struktury 
+            // poprzez identyfikację silnie spójnych składowych w tym grafie.
+
+            // Kluczowe kroki tego badania:
+            // 1. Konwersja wyrażenia logicznego 2-CNF na odpowiedni graf, gdzie wierzchołki reprezentują zmienne
+            //    oraz ich negacje, a krawędzie odzwierciedlają klauzule 2-CNF.
+            // 2. Wykorzystanie algorytmu przeszukiwania w głąb (DFS) do zidentyfikowania silnie spójnych składowych
+            //    w tym grafie.
+            // 3. Sprawdzenie, czy nie istnieją w składowej takie wierzchołki (zmienne i ich negacje),
+            //    które należą do tej samej silnie spójnej składowej, co oznaczałoby niemożność spełnienia wyrażenia 2-CNF.
+            // 4. Jeśli nie ma takich wierzchołków, wyrażenie jest spełnialne, w przeciwnym razie nie jest spełnialne.
+
+            // Badanie spełnialności wyrażeń 2-CNF jest używane w teorii języków formalnych, 
+            // algorytmice, teorii grafów oraz w zagadnieniach związanych z logiką matematyczną,
+            // takich jak automatyczne dowodzenie twierdzeń, analiza złożoności obliczeniowej i inne.
+
+#if IICNF
+            Graph graph = new Graph(@"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\2CNF_graph.txt");
+            graph.PrintLogicalFormula();
+            graph.PrintGraph();
+
+            Console.WriteLine("Vertex neighborhood: ");
+            foreach (var node in graph.vertices)
+                node.PrintNeighbors();
+
+            Console.WriteLine("2CNF Vertieces neighborhood: ");
+            foreach (var node in graph.twoCNFVertieces)
+                node.PrintNeighbors();
+
+            TwoCNF alg = new(graph);
+
+            if (alg.Algorithm2CNF())
+            {
+                Console.WriteLine("The expression is satisfiable.");
+                alg.Print2CNF();
+                alg.CheckLogicFormula();
+            }
+            else
+                Console.WriteLine("The expression is unsatisfiable.");
 
             Console.WriteLine();
             Console.WriteLine("===========================================");
