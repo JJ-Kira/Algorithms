@@ -3,13 +3,15 @@
 //#define COMBINATION
 //#define KNIGHT
 //#define QUEEN
-#define H_KNIGHT
-#define H_QUEEN
+//#define H_KNIGHT
+//#define H_QUEEN
+#define HASH
 
 using Algorithms.Transfomations;
 using Algorithms.Chess;
+using Algorithms.Other;
 
-namespace Algorithms
+namespace Algorithm
 {
     class Test
     {
@@ -195,6 +197,59 @@ namespace Algorithms
 #if H_QUEEN
             GradientQueen heuristicQueen = new GradientQueen();
             heuristicQueen.SolveNQueens(24); 
+#endif
+
+            // Zadanie 5 - hashowanie
+
+            // Hashowanie to proces przekształcania danych wejściowych (dowolnego typu) 
+            // w ciąg znaków o stałej długości, zwykle znacznie krótszy niż dane wejściowe. 
+            // Jest to realizowane przez funkcję haszującą.
+
+            // Funkcja haszująca to funkcja, która bierze "klucz" jako dane wejściowe 
+            // i zwraca indeks tablicy, w której powinna być przechowywana wartość odpowiadająca temu kluczowi.
+
+            // Hashowanie jest często używane w strukturach danych, takich jak tablice haszujące, 
+            // aby szybko lokalizować element danych (na przykład wartości słownikowe) bez konieczności przeszukiwania każdego elementu.
+
+            // Przykład działania algorytmu haszowania:
+            // 1. Dane wejściowe (klucz) są przekazywane do funkcji haszującej.
+            // 2. Funkcja haszująca przetwarza klucz i zwraca indeks tablicy.
+            // 3. Wartość jest przechowywana w tablicy haszującej pod tym indeksem.
+
+            // W przypadku kolizji, czyli sytuacji, gdy dwa różne klucze mają ten sam indeks haszujący, 
+            // stosuje się różne metody rozwiązania, np. łańcuchowanie (przechowywanie wszystkich elementów o tym samym indeksie w liście).
+
+#if HASH
+            double[] doubles0 = { 2.46, 1.54, 19.5868, 13.59, 29.535, 8.123, 92847.124, 1901.39, 33.21, 356.153, 860.321 };
+            double[] doubles1 = { 1.43, 54.76, 345.543, 8768.32, 9.324, 56.896, 0.234, 930.32, 104.234, 40.32, 12.304 };
+            Hash<double> hashTable0 = new Hash<double>();
+
+            int[] ints0 = { 45, 73, 5, 2309, 456, 6508, 3, 64, 237, 345, 8904, 2, 546, 85, 258, 214, 2132, 3097, 2346 };
+            int[] ints1 = { 54, 134, 876, 540, 79990, 8764, 24085, 2222, 456, 123, 570, 4535, 1794, 137, 25, 7 };
+            int[] ints2 = { 174, 75667, 432, 896, 4699, 345, 2675, 6893, 87534, 876, 468, 435467, 149, 2356 };
+            Hash<int> hashTable1 = new Hash<int>();
+
+
+            string[] strings0 = { "eryk", "filemon", "lolek", "egon", "lucifent", "czeslaw", "kaja", "husky", "luna", "parys", "horacy", "homer", "midori", "kise", "cipciak", "yoki", "moon", "waszka", "charon" };
+            string[] strings1 = { "piotr", "pawel", "dariusz", "magda", "kasia", "ola" };
+            string[] strings2 = { "blus", "wena", "paco", "mamba", "tola", "kredka", "bidon", "guzik", "calka", "kawa", "zbychu", "gucio", "stefan"};
+            Hash<string> hashTable2 = new Hash<string>();
+
+            hashTable2.HashInsert(strings0);
+            hashTable1.HashInsert(ints0);
+            hashTable0.HashInsert(doubles0);
+            hashTable2.PrintHashTable();
+
+            Console.WriteLine("==========================");
+            string element = "lolek";
+            Console.WriteLine($"{element} ind: {hashTable2.HashSearch(element)}");
+
+
+            Console.WriteLine("==========================");
+            hashTable2.HashInsert(strings1);
+            hashTable1.HashInsert(ints1);
+            hashTable0.HashInsert(doubles1);
+            hashTable2.PrintHashTable();
 #endif
         }
     }
