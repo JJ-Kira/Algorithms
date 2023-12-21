@@ -77,13 +77,6 @@ namespace Algorithms.Graphs
             Console.WriteLine();
 
             Console.WriteLine($"Nodes number: {nodes.Count}");
-
-            var edges_sorted = edges.OrderBy(x => x.Weight);
-
-            foreach (var edge in edges_sorted)
-            {
-                Console.WriteLine($"{edge.VertexStart} -> {edge.VertexEnd} : {edge.Weight}");
-            }
         }
 
         // Display the logical formula representing the graph (for 2CNF)

@@ -7,7 +7,8 @@
 //#define H_QUEEN
 //#define HASH
 //#define KRUSKAL
-#define IICNF
+//#define IICNF
+#define BAP
 
 using Algorithms.Transfomations;
 using Algorithms.Chess;
@@ -393,6 +394,37 @@ namespace Algorithm
             Console.WriteLine();
 #endif
 
+            // Zadanie 8 - Mosty i punkty artykulacji
+
+            // Mosty w grafach są to krawędzie, których usunięcie powoduje rozspójnienie grafu lub rozdzielenie go na dwie lub więcej spójnych składowych. 
+            // Punkty artykulacji to wierzchołki, których usunięcie powoduje podział grafu na więcej spójnych składowych.
+
+            // Znalezienie mostów można osiągnąć algorytmem, np. DFS (przeszukiwanie w głąb), identyfikując krawędzie w grafie, których usunięcie
+            // powoduje zmniejszenie liczby spójnych składowych. Znalezienie punktów artykulacji również jest możliwe dzięki algorytmom,
+            // takim jak algorytm Tarjana lub algorytm Hopcrofta-Tarjana, które analizują strukturę grafu w celu identyfikacji tych wierzchołków.
+
+            // Mosty i punkty artykulacji mają znaczenie w analizie sieci komunikacyjnych, planowaniu tras w sieciach telekomunikacyjnych,
+            // a także w optymalizacji sieci drogowych. Identyfikacja tych elementów pozwala na wykrycie kluczowych połączeń w sieciach,
+            // co jest istotne dla zapewnienia spójności i wydajności komunikacji w różnego rodzaju systemach.
+
+#if BAP
+            Graph graphB = new Graph(@"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\bridge_graph.txt", false);
+            graphB.PrintGraph();
+            Bridges bridges = new Bridges(graphB);
+            bridges.FindBridges();
+            Console.WriteLine();
+            Console.WriteLine("---------------------------");
+            Console.WriteLine();
+
+
+            Graph graphAP = new Graph(@"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\ap_graph.txt", false);
+            //graphAP.PrintGraph();
+            ArticulationPoints aps = new ArticulationPoints(graphAP);
+            aps.FindArticulationPoints();
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
+#endif
         }
     }
 }
