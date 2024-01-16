@@ -8,7 +8,8 @@
 //#define HASH
 //#define KRUSKAL
 //#define IICNF
-#define BAP
+//#define BAP
+#define TARJAN
 
 using Algorithms.Transfomations;
 using Algorithms.Chess;
@@ -109,7 +110,7 @@ namespace Algorithm
             // Zadanie 3 - problem N hetmanów
 
             // Problem N Hetmanów polega na umieszczeniu N hetmanów na szachownicy N x N tak,
-            // aby żaden z hetmanów nie był zagrożony przez innego. Oznacza to, że żadne dwa
+            // aby żaden z hetmanów nie był zagrożony przez innego. Oznacza to, że żadni dwaj
             // hetmani nie mogą znajdować się w tej samej linii, kolumnie ani na tej samej przekątnej.
 
             // Metoda backtrackingu (cofnij i spróbuj ponownie) jest techniką algorytmiczną używaną
@@ -407,6 +408,8 @@ namespace Algorithm
             // a także w optymalizacji sieci drogowych. Identyfikacja tych elementów pozwala na wykrycie kluczowych połączeń w sieciach,
             // co jest istotne dla zapewnienia spójności i wydajności komunikacji w różnego rodzaju systemach.
 
+            //https://eduinf.waw.pl/inf/alg/001_search/0130a.php
+
 #if BAP
             Graph graphB = new Graph(@"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\bridge_graph.txt", false);
             graphB.PrintGraph();
@@ -424,6 +427,61 @@ namespace Algorithm
             Console.WriteLine();
             Console.WriteLine("===========================================");
             Console.WriteLine();
+#endif
+
+            // Zadanie 9 - algorytm Tarjana
+
+            //Algorytm Tarjana jest używany do znajdowania silnie spójnych składowych w grafie skierowanym. 
+            //Jego głównym celem jest identyfikacja grup wierzchołków, które są wzajemnie osiągalne, czyli 
+            //każdy wierzchołek w danej grupie może dotrzeć do każdego innego w tej samej grupie.
+
+            //Dokładne kroki algorytmu Tarjana:
+
+            //1. Inicjalizacja potrzebnych struktur danych, takich jak stosy (stack), tablice odwiedzin, tablice low i id, oraz liczniki.
+            //2. Przechodzenie po każdym wierzchołku grafu i wywoływanie rekurencyjnej funkcji DFS (Depth-First Search).
+            //3. W trakcie przechodzenia DFS, przypisywanie każdemu wierzchołkowi unikalnego identyfikatora id oraz wartości low.
+            //4. Identyfikacja składowych silnie spójnych przez porównywanie wartości low wierzchołków na stosie.
+            //5. Dodawanie wierzchołków do odpowiednich składowych silnie spójnych.
+
+            //Algorytm jest wykorzystywany w wielu dziedzinach informatyki, takich jak kompilatory (analiza składniowa), 
+            //bazy danych (wykrywanie zależności transakcji) oraz sieci komputerowe (analiza połączeń).
+
+            //Zasada działania algorytmu Tarjana opiera się na przejściu rekurencyjnym DFS, w trakcie którego numerujemy kolejno odwiedzane wierzchołki.
+            //Przy odwiedzaniu wierzchołków DFS wyznacza minimalny numer wierzchołka, do którego istnieje ścieżka biegnąca od bieżącego wierzchołka.
+            //Numer ten jest zapamiętywany w parametrze Low  związanym z każdym wierzchołkiem grafu.
+            //Parametr Low można prosto wyznaczyć na podstawie numerów oraz parametrów Low  wierzchołków sąsiednich.
+
+            //Algorytm Tarjana wykorzystuje stos do składowania odwiedzanych wierzchołków oraz do identyfikowania silnie spójnych składowych.
+            //Efektem działania tego algorytmu jest lista, która zawiera listy wierzchołków należących do tej samej silnie spójnej składowej grafu
+            //wyjściowego.
+
+#if TARJAN
+            Graph graphT = new Graph(@"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\tarjan_graph.txt", false);
+            Tarjan tarjan = new Tarjan(graphT);
+            var stronglyConnectedComponents = tarjan.FindStronglyConnectedComponents();
+            Console.WriteLine("Składowe silnie spójne:");
+            foreach (var component in stronglyConnectedComponents)
+            {
+                Console.Write("Składowa:");
+                foreach (var vertex in component)
+                {
+                    Console.Write($" {vertex}");
+                }
+                Console.WriteLine();
+            }
+            int vertex1 = 1;
+            int vertex2 = 4;
+
+            int lca = tarjan.FindLowestCommonAncestor(vertex1, vertex2);
+
+            if (lca != -1)
+            {
+                Console.WriteLine($"Lowest Common Ancestor of {vertex1} and {vertex2}: {lca}");
+            }
+            else
+            {
+                Console.WriteLine($"There is no common ancestor for {vertex1} and {vertex2} in the same strongly connected component.");
+            }
 #endif
         }
     }

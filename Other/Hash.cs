@@ -10,6 +10,7 @@ namespace Algorithms.Other
         private int m; // The initial size of the hash table
         private int n; // The number of elements currently in the hash table
 
+        // TODO: change to LinkedList
         public List<T>[] hash; // The hash table, an array of lists to handle collisions
 
         double alfa = (Math.Sqrt(5) - 1) / 2; // Constant used in the hash function for integers
@@ -62,7 +63,7 @@ namespace Algorithms.Other
         private int HashInt(int val)
         {
             // Use multiplication method for hashing integers
-            uint hashValue = (uint)Math.Floor(m * ((val * alfa) % 1));
+            uint hashValue = (uint)Math.Floor(m * ((val * alfa) % 1)); //modulo
             return (int)(hashValue % m);
         }
 
@@ -101,7 +102,7 @@ namespace Algorithms.Other
         }
 
         // Hash function for a custom structure
-        private int HashCustomStructure(CustomStructure val)
+        private int HashCustomStructure(CustomStructure val) //option to set user's own hashing function
         {
             // For simplicity, let's assume the structure has two fields of type int
             return HashInt(val.Field1 + val.Field2);
