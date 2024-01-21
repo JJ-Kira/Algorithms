@@ -455,32 +455,81 @@ namespace Algorithm
             //Efektem działania tego algorytmu jest lista, która zawiera listy wierzchołków należących do tej samej silnie spójnej składowej grafu
             //wyjściowego.
 
+            /*
+             * Cele znajdowania silnie spójnych składowych (SCC) w grafie skierowanym
+             * i znajdowania najniższego wspólnego przodka (LCA) są zazwyczaj powiązane
+             * w przypadku algorytmów operujących na drzewach przeszukiwań binarnych (BST)
+             * lub drzewach ogólnych. Algorytmy te mogą być stosowane, gdy mamy do czynienia
+             * z drzewem silnie spójnym, co oznacza, że dla każdej pary wierzchołków istnieje
+             * ścieżka skierowana z jednego do drugiego.
+             *
+             * Ogólny sposób, w jaki te cele łączą się ze sobą, można opisać następująco:
+             *
+             * 1. Znajdowanie silnie spójnych składowych (SCC):
+             *    - Algorytm Tarjana jest używany do identyfikacji silnie spójnych składowych
+             *      w grafie skierowanym.
+             *    - Po zastosowaniu algorytmu Tarjana, otrzymujemy listę silnie spójnych
+             *      składowych oraz informację, do której składowej należy każdy wierzchołek.
+             *
+             * 2. Znajdowanie najniższego wspólnego przodka (LCA):
+             *    - Jeśli mamy drzewo skierowane (graf bez cykli), możemy użyć algorytmu LCA
+             *      do szybkiego znajdowania najniższego wspólnego przodka dwóch wierzchołków
+             *      w tym drzewie.
+             *    - W przypadku drzewa silnie spójnego (co oznacza, że każda para wierzchołków
+             *      jest połączona ścieżką skierowaną), LCA w obrębie silnie spójnych składowych
+             *      może być użyte do znajdowania najniższego wspólnego przodka dla dowolnych
+             *      dwóch wierzchołków.
+             *
+             * 3. Łączenie celów:
+             *    - Po zidentyfikowaniu silnie spójnych składowych za pomocą algorytmu Tarjana,
+             *      możemy traktować każdą silnie spójną składową jako pojedynczy wierzchołek
+             *      w nowym grafie.
+             *    - Ten nowy graf, nazywany DAG (Directed Acyclic Graph), jest acykliczny, co
+             *      pozwala na stosowanie algorytmu LCA w obrębie każdej silnie spójnej składowej.
+             *
+             * W skrócie, znajdowanie SCC pozwala na przekształcenie grafu skierowanego w strukturę
+             * bardziej korzystną dla operacji, takich jak znajdowanie najniższego wspólnego przodka,
+             * zwłaszcza gdy zależy nam na zachowaniu porządku czasowego i pamięciowego. Algorytm LCA
+             * może być stosowany w kontekście pojedynczej silnie spójnej składowej (która stanowi nowy
+             * wierzchołek w DAG), a jego wynikiem będzie najniższy wspólny przodek w kontekście tego
+             * podgrafu.
+             */
+
+            // Algorytm Tarjana do znajdowania silnie spójnych składowych w grafie skierowanym.
+            // Silnie spójna składowa to taka część grafu, gdzie każdy wierzchołek jest osiągalny z każdego innego wierzchołka tej części.
+
+            // Algorytm używa przeszukiwania w głąb (DFS) do przejścia przez graf i utrzymuje dwie kluczowe informacje dla każdego wierzchołka:
+            // 1. Wartości low-link: Liczba całkowita reprezentująca najmniejszy identyfikator węzła osiągalnego z tego węzła podczas DFS,
+            // włączając siebie.
+            // 2. Stos: Do śledzenia węzłów aktualnie znajdujących się na stosie rekurencji DFS.
+
+            // Kroki algorytmu:
+            // 1. Rozpocznij DFS od każdego węzła (jeśli nie został jeszcze odwiedzony).
+            // 2. Podczas odwiedzania węzła, przypisz mu rosnący identyfikator i zainicjuj jego wartość low-link do jego identyfikatora.
+            // Umieść węzeł na stosie.
+            // 3. Podczas odwiedzania węzła sąsiadującego:
+            //    - Jeśli sąsiadujący węzeł nie został jeszcze odwiedzony, rekurencyjnie zastosuj DFS na nim, a następnie zaktualizuj
+            //    wartość low-link bieżącego węzła do minimum z jego aktualnej wartości low-link i wartości low-link sąsiadującego węzła.
+            //    - Jeśli sąsiadujący węzeł jest już na stosie (nie tylko odwiedzony, ale na stosie), zaktualizuj wartość low-link bieżącego
+            //    węzła do minimum z jego aktualnej wartości low-link i identyfikatora sąsiadującego węzła.
+            // 4. Po odwiedzeniu wszystkich sąsiadujących węzłów, jeśli identyfikator bieżącego węzła jest równy jego wartości low-link,
+            // to wszystkie węzły na stosie aż do bieżącego węzła tworzą silnie spójną składową. Zdejmij węzły ze stosu, aby utworzyć tę składową.
+
+            // Algorytm efektywnie identyfikuje wszystkie silnie spójne składowe w jednym przejściu przez graf, co czyni go potężnym narzędziem w
+            // analizie grafów.
+
 #if TARJAN
-            Graph graphT = new Graph(@"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\tarjan_graph.txt", false);
-            Tarjan tarjan = new Tarjan(graphT);
-            var stronglyConnectedComponents = tarjan.FindStronglyConnectedComponents();
-            Console.WriteLine("Składowe silnie spójne:");
-            foreach (var component in stronglyConnectedComponents)
-            {
-                Console.Write("Składowa:");
-                foreach (var vertex in component)
-                {
-                    Console.Write($" {vertex}");
-                }
-                Console.WriteLine();
-            }
-            int vertex1 = 1;
-            int vertex2 = 4;
+            string filePath = @"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\tarjan_graph.txt";
+            bool isDirected = true;
 
-            int lca = tarjan.FindLowestCommonAncestor(vertex1, vertex2);
+            Graph graph = new Graph(filePath, isDirected);
+            graph.PrintGraph();
 
-            if (lca != -1)
+            TarjanSCC tarjan = new TarjanSCC(graph);
+            var sccs = tarjan.GetStronglyConnectedComponents();
+            foreach (var scc in sccs)
             {
-                Console.WriteLine($"Lowest Common Ancestor of {vertex1} and {vertex2}: {lca}");
-            }
-            else
-            {
-                Console.WriteLine($"There is no common ancestor for {vertex1} and {vertex2} in the same strongly connected component.");
+                Console.WriteLine("SCC: " + string.Join(", ", scc));
             }
 #endif
         }

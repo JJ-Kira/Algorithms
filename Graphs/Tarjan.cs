@@ -1,88 +1,89 @@
 ﻿namespace Algorithms.Graphs
 {
-    internal class Tarjan
+    internal class TarjanSCC
     {
+        // The graph on which Tarjan's algorithm is to be applied.
         private Graph graph;
-        private List<List<int>> stronglyConnectedComponents;
-        private Stack<int> stack;
+
+        // Array 'low' keeps track of the lowest vertex id reachable from each vertex.
+        private int[] low;
+
+        // Array 'ids' stores the ids of each vertex, which are assigned during the DFS.
+        // It's used to check if a vertex has already been visited. In other words, it stores discovery times of visited vertices.
         private int[] ids;
-        private int[] lows;
-        private int id;
+
+        // Array 'onStack' is a boolean array to check if a vertex is in the current stack.
         private bool[] onStack;
 
-        public Tarjan(Graph graph)
+        // Stack to keep track of the vertices in the current DFS path.
+        private Stack<int> stack;
+
+        // List to store all the strongly connected components found.
+        private List<List<int>> stronglyConnectedComponents;
+
+        // Variable 'id' is used to assign unique ids to each vertex during DFS.
+        private int id;
+
+        public TarjanSCC(Graph graph)
         {
             this.graph = graph;
-            stronglyConnectedComponents = new List<List<int>>();
+            low = new int[graph.nodes.Count];
+            ids = new int[graph.nodes.Count];
+            onStack = new bool[graph.nodes.Count];
             stack = new Stack<int>();
-            ids = new int[graph.n];
-            lows = new int[graph.n];
-            onStack = new bool[graph.n];
+            stronglyConnectedComponents = new List<List<int>>();
             id = 0;
-        }
 
-        public List<List<int>> FindStronglyConnectedComponents()
-        {
-            for (int i = 0; i < graph.n; i++)
+            // Initialize all ids to -1 indicating that no vertex has been visited yet.
+            Array.Fill(ids, -1);
+
+            // Start DFS from each vertex.
+            for (int i = 0; i < graph.nodes.Count; i++)
             {
-                if (ids[i] == 0)
+                if (ids[i] == -1)
                 {
                     DFS(i);
                 }
             }
-
-            return stronglyConnectedComponents;
-        }
-
-        public int FindLowestCommonAncestor(int vertex1, int vertex2)
-        {
-            // Assuming FindStronglyConnectedComponents() has been called before this method
-            int component1 = -1;
-            int component2 = -1;
-
-            foreach (var component in stronglyConnectedComponents)
-            {
-                if (component.Contains(vertex1))
-                    component1 = component1 == -1 ? component[0] : component1;
-                if (component.Contains(vertex2))
-                    component2 = component2 == -1 ? component[0] : component2;
-            }
-
-            return component1 == component2 ? component1 : -1;
         }
 
         private void DFS(int at)
         {
+            // Start DFS from vertex 'at'.
             stack.Push(at);
             onStack[at] = true;
-            ids[at] = lows[at] = ++id;
+            ids[at] = low[at] = id++;
 
-            foreach (var to in graph.vertices[at].neighbors)
+            // Visit all neighbors of 'at'.
+            foreach (int to in graph.vertices[at].neighbors)
             {
-                if (ids[to] == 0)
-                {
-                    DFS(to);
-                    lows[at] = Math.Min(lows[at], lows[to]);
-                }
-                else if (onStack[to])
-                {
-                    lows[at] = Math.Min(lows[at], ids[to]);
-                }
+                // If 'to' has not been visited, perform DFS on 'to'.
+                if (ids[to] == -1) DFS(to);
+
+                // Update the low-link value of 'at' if 'to' is in the current DFS stack.
+                if (onStack[to]) low[at] = Math.Min(low[at], low[to]);
             }
 
-            if (ids[at] == lows[at])
+            // If 'at' is a root node, pop all nodes from the stack to form an SCC.
+            if (ids[at] == low[at])
             {
-                List<int> component = new List<int>();
-                int node;
-                do
+                var component = new List<int>();
+
+                for (int node = stack.Pop(); ; node = stack.Pop())
                 {
-                    node = stack.Pop();
                     onStack[node] = false;
                     component.Add(node);
-                } while (node != at);
+                    if (node == at) break;
+                }
 
                 stronglyConnectedComponents.Add(component);
             }
+        }
+
+        // Method to get the list of all strongly connected components.
+        public List<List<int>> GetStronglyConnectedComponents()
+        {
+            return stronglyConnectedComponents;
         }
     }
 }
