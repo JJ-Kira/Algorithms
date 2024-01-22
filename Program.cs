@@ -525,12 +525,9 @@ namespace Algorithm
             Graph graph = new Graph(filePath, isDirected);
             graph.PrintGraph();
 
-            TarjanSCC tarjan = new TarjanSCC(graph);
-            var sccs = tarjan.GetStronglyConnectedComponents();
-            foreach (var scc in sccs)
-            {
-                Console.WriteLine("SCC: " + string.Join(", ", scc));
-            }
+            Tarjan tarjan = new Tarjan(graph);
+            tarjan.FindStronglyConnectedComponents();
+            tarjan.PrintStronglyConnectedComponents();
 #endif
         }
     }

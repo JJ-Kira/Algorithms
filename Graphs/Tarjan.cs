@@ -1,89 +1,94 @@
 ﻿namespace Algorithms.Graphs
 {
-    internal class TarjanSCC
+    internal class Tarjan
     {
-        // The graph on which Tarjan's algorithm is to be applied.
-        private Graph graph;
+        private Graph graph; // The graph on which Tarjan's algorithm is applied
+        private Stack<Vertex> stack; // Stack used for Tarjan's DFS
+        private int discoveryTimeIndex; // Index used for assigning discovery times to vertices
+        private List<List<int>> sccs; // List of strongly connected components
+        private int[] indices; // Array storing the discovery index of each vertex
+        private int[] lowLink; // Array storing the low-link value of each vertex
+        private bool[] onStack; // Boolean array to check if a vertex is in the stack
 
-        // Array 'low' keeps track of the lowest vertex id reachable from each vertex.
-        private int[] low;
-
-        // Array 'ids' stores the ids of each vertex, which are assigned during the DFS.
-        // It's used to check if a vertex has already been visited. In other words, it stores discovery times of visited vertices.
-        private int[] ids;
-
-        // Array 'onStack' is a boolean array to check if a vertex is in the current stack.
-        private bool[] onStack;
-
-        // Stack to keep track of the vertices in the current DFS path.
-        private Stack<int> stack;
-
-        // List to store all the strongly connected components found.
-        private List<List<int>> stronglyConnectedComponents;
-
-        // Variable 'id' is used to assign unique ids to each vertex during DFS.
-        private int id;
-
-        public TarjanSCC(Graph graph)
+        public Tarjan(Graph graph)
         {
             this.graph = graph;
-            low = new int[graph.nodes.Count];
-            ids = new int[graph.nodes.Count];
+            stack = new Stack<Vertex>();
+            discoveryTimeIndex = 0;
+            sccs = new List<List<int>>();
+            indices = new int[graph.nodes.Count];
+            lowLink = new int[graph.nodes.Count];
             onStack = new bool[graph.nodes.Count];
-            stack = new Stack<int>();
-            stronglyConnectedComponents = new List<List<int>>();
-            id = 0;
+            Array.Fill(indices, -1); // Initialize all indices to -1
+        }
 
-            // Initialize all ids to -1 indicating that no vertex has been visited yet.
-            Array.Fill(ids, -1);
-
-            // Start DFS from each vertex.
-            for (int i = 0; i < graph.nodes.Count; i++)
+        // Main method to start the Tarjan's algorithm
+        public void FindStronglyConnectedComponents()
+        {
+            foreach (var v in graph.vertices)
             {
-                if (ids[i] == -1)
+                if (indices[v.num] == -1)
                 {
-                    DFS(i);
+                    DepthFirstSearch(v);
                 }
             }
         }
 
-        private void DFS(int at)
+        // DFS method for Tarjan's algorithm
+        private void DepthFirstSearch(Vertex v)
         {
-            // Start DFS from vertex 'at'.
-            stack.Push(at);
-            onStack[at] = true;
-            ids[at] = low[at] = id++;
+            // Step K01-K05: Initialize vertex parameters and add it to stack
+            indices[v.num] = discoveryTimeIndex;
+            lowLink[v.num] = discoveryTimeIndex;
+            discoveryTimeIndex++;
+            stack.Push(v);
+            onStack[v.num] = true;
 
-            // Visit all neighbors of 'at'.
-            foreach (int to in graph.vertices[at].neighbors)
+            // Step K06: Explore all neighbors
+            foreach (var wNum in v.neighbors)
             {
-                // If 'to' has not been visited, perform DFS on 'to'.
-                if (ids[to] == -1) DFS(to);
-
-                // Update the low-link value of 'at' if 'to' is in the current DFS stack.
-                if (onStack[to]) low[at] = Math.Min(low[at], low[to]);
+                Vertex w = graph.vertices.Find(vertex => vertex.num == wNum);
+                // Step K07-K12: Update low-link value based on neighbor exploration
+                if (indices[w.num] == -1)
+                {
+                    DepthFirstSearch(w);
+                    lowLink[v.num] = Math.Min(lowLink[v.num], lowLink[w.num]);
+                }
+                else if (onStack[w.num])
+                {
+                    lowLink[v.num] = Math.Min(lowLink[v.num], indices[w.num]);
+                }
             }
 
-            // If 'at' is a root node, pop all nodes from the stack to form an SCC.
-            if (ids[at] == low[at])
+            // Step K13-K29: Pop the stack and form SCCs
+            if (lowLink[v.num] == indices[v.num])
             {
-                var component = new List<int>();
-
-                for (int node = stack.Pop(); ; node = stack.Pop())
+                List<int> component = new List<int>();
+                Vertex w;
+                do
                 {
-                    onStack[node] = false;
-                    component.Add(node);
-                    if (node == at) break;
-                }
-
-                stronglyConnectedComponents.Add(component);
+                    w = stack.Pop();
+                    onStack[w.num] = false;
+                    component.Add(w.num);
+                } while (w != v);
+                sccs.Add(component);
             }
         }
 
-        // Method to get the list of all strongly connected components.
-        public List<List<int>> GetStronglyConnectedComponents()
+        // Method to print the SCCs found
+        public void PrintStronglyConnectedComponents()
         {
-            return stronglyConnectedComponents;
+            int count = 1;
+            foreach (var scc in sccs)
+            {
+                Console.Write($"SCC {count} : ");
+                foreach (var node in scc)
+                {
+                    Console.Write($"{node} ");
+                }
+                Console.WriteLine();
+                count++;
+            }
         }
     }
 }
