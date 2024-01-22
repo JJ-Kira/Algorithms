@@ -244,7 +244,17 @@ namespace Algorithms.Graphs
         public int num; // Number assigned to the vertex
         public List<int> neighbors = new List<int>(); // List of neighboring vertices
 
+        public int h; // Height of the vertex
+        public int excessFlow; // Excess flow at the vertex
+
         public Vertex(int number) => this.num = number;
+
+        public Vertex(int number, int excessFlow)
+        {
+            this.num = number;
+            this.excessFlow = excessFlow;
+            this.h = 0; // Default height is 0
+        }
 
         public void AddNeighborToVertex(int u)
         {

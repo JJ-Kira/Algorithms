@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Algorithms.Other
+namespace Algorithms.Data
 {
     // Generic Hash class that can handle different types of data (e.g., int, double, string)
     internal class Hash<T>

@@ -9,13 +9,15 @@
 //#define KRUSKAL
 //#define IICNF
 //#define BAP
-#define TARJAN
+//#define TARJAN
+#define NET
 
 using Algorithms.Transfomations;
 using Algorithms.Chess;
-using Algorithms.Other;
+using Algorithms.Data;
 using Algorithms.Graphs;
 using System.Reflection;
+using System;
 
 namespace Algorithm
 {
@@ -528,6 +530,102 @@ namespace Algorithm
             Tarjan tarjan = new Tarjan(graph);
             tarjan.FindStronglyConnectedComponents();
             tarjan.PrintStronglyConnectedComponents();
+#endif
+
+            // Zadanie 10 - Znajdowanie maksymalnego przepływu metodą nieprzedpływową
+
+            //Wyznaczanie maksymalnego przepływu – problem obliczeniowy polegający na wyznaczeniu maksymalnego przepływu w sieci przepływowej.
+
+            //Sieć przepływowa jest skierowanym grafem prostym. Każdy łuk(krawędź skierowana w grafie) ma swoją nieujemną wagę, która oznacza
+            //maksymalny dopuszczalny przepływ w tym łuku.Na potrzeby tego artykułu nazwijmy rzeczy przepływające przez sieć danymi.
+            //Jeden z wierzchołków sieci jest źródłem, z którego wypływają przesyłane dane. Inny z wierzchołków to ujście, do którego te dane wpływają.
+            //Zakłada się ponadto, że dla każdego z pozostałych wierzchołków istnieje ścieżka ze źródła do ujścia przechodząca przez ten wierzchołek.
+
+            //Przepływem w sieci nazywamy przyporządkowanie każdemu łukowi pewnej wartości, która oznacza liczbę danych aktualnie przesyłanych przez
+            //ten łuk.Wartości te muszą spełniać następujące warunki:
+            //-Wartość przyporządkowana krawędzi musi być mniejsza lub równa jej wadze (warunek przepustowości).
+            //-Do każdego wierzchołka(poza źródłem i ujściem) musi wpływać tyle samo danych, ile z niego wypływa (warunek zachowania przepływu).
+
+            //Omawiany problem polega na dobraniu takiego przepływu, aby liczba danych wypływających ze źródła(i zarazem wpływających do ujścia)
+            //była jak największa.
+
+            /*
+             * "Znajdowanie maksymalnego przepływu" to problem polegający na ustaleniu maksymalnej ilości "przepływu" (danych, towarów, itp.),
+             * która może zostać przesłana z węzła źródłowego do węzła docelowego w sieci grafu, przy czym każda krawędź w sieci ma określoną
+             * pojemność, która ogranicza przepływ przez nią. Istnieją różne metody rozwiązania tego problemu, które można podzielić na dwie główne kategorie:
+             *
+             * 1. Metody przedprzepływowe (pre-flow methods):
+             *    - Algorytm Forda-Fulkersona: to jedna z najstarszych metod, wykorzystująca pojęcie ścieżki powiększającej. Polega na szukaniu ścieżek
+             *      od źródła do ujścia i "wysyłaniu" przepływu wzdłuż tych ścieżek, aż do osiągnięcia pojemności krawędzi.
+             *    - Algorytm Edmondsa-Karpa: to wariant algorytmu Forda-Fulkersona, który wybiera ścieżki powiększające w sposób bardziej zorganizowany,
+             *      zazwyczaj przy użyciu przeszukiwania wszerz (BFS).
+             *    - Algorytm Dinica: jest ulepszeniem powyższych metod i polega na wielokrotnym tworzeniu tzw. sieci warstwowej, która jest wykorzystywana
+             *      do efektywniejszego znajdowania ścieżek powiększających. Dinic's algorithm is often classified as a blocking flow algorithm rather than 
+             *      a traditional pre-flow algorithm. It's true that it uses the concept of augmenting paths, similar to pre-flow methods like the Ford-Fulkerson 
+             *      algorithm. However, Dinic's algorithm differs significantly in its approach.
+             *
+             * 2. Metody nie-przedprzepływowe (non-pre-flow methods):
+             *    - Algorytm Push-Relabel: różni się od metod przedprzepływowych tym, że zamiast szukać ścieżek od źródła do ujścia, pracuje lokalnie
+             *      na wierzchołkach, "przesuwając" przepływ (push) i aktualizując etykiety wierzchołków (relabel) w celu zwiększenia przepływu.
+             *    - Algorytm Goldberg-Tarjana: to wariant algorytmu Push-Relabel, który używa specjalnej heurystyki do wyboru kolejnych wierzchołków
+             *      do przetworzenia, co zwiększa efektywność algorytmu.
+             *
+             * Wybór konkretnej metody zależy od specyfiki problemu i charakterystyki grafu. Metody przedprzepływowe są zazwyczaj prostsze w implementacji,
+             * ale mogą być mniej efektywne dla dużych sieci. Metody nie-przedprzepływowe są bardziej skomplikowane, ale często szybsze dla dużych i
+             * skomplikowanych sieci.
+             */
+
+            // https://www.adrian-haarbach.de/idp-graph-algorithms/implementation/maxflow-push-relabel/index_en.html
+
+            /*
+             * Algorytm Push-Relabel do znajdowania maksymalnego przepływu:
+             *
+             * Opis algorytmu:
+             * Algorytm Push-Relabel, znany również jako algorytm przesuwania i podwyższania etykiet, 
+             * służy do efektywnego obliczania maksymalnego przepływu w sieci przepływowej. 
+             * Zamiast szukać ścieżek powiększających, algorytm działa lokalnie na wierzchołkach, 
+             * wykonując operacje 'push' (przesunięcia przepływu) i 'relabel' (zmiany etykiet).
+             *
+             * Kroki algorytmu:
+             * 1. Inicjalizacja: Wszystkim wierzchołkom, poza źródłem, przypisuje się etykietę wysokości zero.
+             *    Wierzchołkowi źródłowemu przypisuje się etykietę wysokości równą liczbie wierzchołków.
+             *    Wstępny przepływ zostaje ustawiony jako pełna pojemność dla krawędzi wychodzących ze źródła
+             *    i zero dla pozostałych krawędzi.
+             *
+             * 2. Operacja Push: Jeśli wierzchołek ma nadmiar przepływu (przepływ wejściowy większy od wyjściowego)
+             *    i jest sąsiadem wierzchołka o niższej etykiecie, to nadmiarowy przepływ jest 'przesuwany' do tego sąsiada.
+             *
+             * 3. Operacja Relabel: Jeśli wierzchołek ma nadmiar przepływu, ale nie ma sąsiadów o niższej etykiecie,
+             *    to etykieta wierzchołka jest 'podwyższana' (zwiększana o jeden).
+             *
+             * 4. Powtarzanie: Operacje Push i Relabel są powtarzane, dopóki wszystkie nadmiary przepływu nie zostaną
+             *    przesunięte do ujścia, lub nie będzie możliwe dalsze wykonanie operacji.
+             *
+             * Wybór algorytmu Push-Relabel jest odpowiedni ze względu na:
+             * - Dobrą wydajność dla różnych typów grafów, w tym dla grafu podanego przez użytkownika.
+             * - Możliwość łatwej adaptacji do istniejącej klasy Graph, reprezentującej graf jako kolekcję wierzchołków i krawędzi.
+             * - Skalowalność i efektywność, zwłaszcza w grafach o średniej i dużej liczbie wierzchołków i krawędzi.
+             */
+
+            // https://www.geeksforgeeks.org/introduction-to-push-relabel-algorithm/
+            // https://www.geeksforgeeks.org/push-relabel-algorithm-set-2-implementation/
+
+#if NET
+            string filePath = @"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\mf_graph.txt";
+            bool isDirected = true;
+
+            Graph graph = new Graph(filePath, isDirected);
+            graph.PrintGraph();
+
+            // Assuming the source is vertex 0 and the sink is the last vertex
+            int source = 0;
+            int sink = 5;
+
+            // Initialize and execute the Goldberg-Tarjan algorithm
+            MaximumFlow mf = new MaximumFlow(graph);
+            int maxFlow = mf.CalculateMaximumFlow(source, sink);
+
+            Console.WriteLine($"The maximum possible flow is: {maxFlow}");
 #endif
         }
     }
