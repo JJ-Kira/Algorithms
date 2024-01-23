@@ -1,4 +1,4 @@
-# Algorithms II - University Assignments
+# Algorithms II
 
 ## Overview
 This repository contains my solutions for the "Algorithms II" class at [Your University's Name]. It showcases a range of algorithms and data structures, highlighting my understanding and implementation skills in these areas.
