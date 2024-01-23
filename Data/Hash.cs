@@ -10,20 +10,25 @@ namespace Algorithms.Data
         private int m; // The initial size of the hash table
         private int n; // The number of elements currently in the hash table
 
-        // TODO: change to LinkedList
-        public List<T>[] hash; // The hash table, an array of lists to handle collisions
+        public LinkedList<T>[] hash; // The hash table, an array of lists to handle collisions
 
         double alfa = (Math.Sqrt(5) - 1) / 2; // Constant used in the hash function for integers
         public double ratio; // Load factor of the hash table, used to decide when to resize
+
+        // Delegate for custom hash functions
+        public delegate int CustomHashFunction(T value);
+
+        // Dictionary to store custom hash functions
+        private Dictionary<Type, CustomHashFunction> customHashFunctions = new Dictionary<Type, CustomHashFunction>();
 
         // Constructor to initialize the hash table
         public Hash()
         {
             m = 10; // Initial size of the hash table
             n = 0;  // Initially, the table is empty
-            hash = new List<T>[m]; // Create the hash table with 'm' buckets
+            hash = new LinkedList<T>[m]; // Create the hash table with 'm' buckets
             for (int i = 0; i < m; i++)
-                hash[i] = new List<T>(); // Initialize each bucket as an empty list
+                hash[i] = new LinkedList<T>(); // Initialize each bucket as an empty list
         }
 
         // Method to print the current state of the hash table
@@ -124,60 +129,77 @@ namespace Algorithms.Data
                 return false;
         }
 
+        // Method to add a custom hash function
+        public void AddCustomHashFunction(Type type, CustomHashFunction function)
+        {
+            customHashFunctions[type] = function;
+        }
+
         // Method to perform the actual hashing and optionally add the value to the hash table
         private int PerformHash(T value, bool option)
         {
             Type type = typeof(T);
             int ind;
 
-            // Hashing based on the type of the value
-            if (type == typeof(int))
+            if (customHashFunctions.ContainsKey(type))
             {
-                ind = HashInt(Convert.ToInt32(value));
-                if (option) hash[ind].Add(value);
+                ind = customHashFunctions[type](value);
+                if (option) hash[ind].AddLast(value);
                 if (hash[ind].Contains(value)) return ind;
             }
-            if (type == typeof(double))
+            else
             {
-                ind = HashDouble(Convert.ToDouble(value));
-                if (option) hash[ind].Add(value);
-                if (hash[ind].Contains(value)) return ind;
-            }
-            if (type == typeof(string))
-            {
-                ind = HashString(value.ToString(), m);
-                if (option) hash[ind].Add(value);
-                if (hash[ind].Contains(value)) return ind;
-            }
-            if (type == typeof(long))
-            {
-                ind = HashLong(Convert.ToInt64(value));
+                // Hashing based on the type of the value
+                if (type == typeof(int))
+                {
+                    ind = HashInt(Convert.ToInt32(value));
+                    if (option) hash[ind].AddLast(value);
+                    if (hash[ind].Contains(value)) return ind;
+                }
+                if (type == typeof(double))
+                {
+                    ind = HashDouble(Convert.ToDouble(value));
+                    if (option) hash[ind].AddLast(value);
+                    if (hash[ind].Contains(value)) return ind;
+                }
+                if (type == typeof(string))
+                {
+                    ind = HashString(value.ToString(), m);
+                    if (option) hash[ind].AddLast(value);
+                    if (hash[ind].Contains(value)) return ind;
+                }
+                if (type == typeof(long))
+                {
+                    ind = HashLong(Convert.ToInt64(value));
 
-                if (option)
-                    hash[ind].Add(value);
+                    if (option)
+                        hash[ind].AddLast(value);
 
-                if (hash[ind].Contains(value))
-                    return ind;
-            }
-            if (type == typeof(char[]))
-            {
-                ind = HashCharPointer(value as char[]);
+                    if (hash[ind].Contains(value))
+                        return ind;
+                }
+                if (type == typeof(char[]))
+                {
+                    ind = HashCharPointer(value as char[]);
 
-                if (option)
-                    hash[ind].Add(value);
+                    if (option)
+                        hash[ind].AddLast(value);
 
-                if (hash[ind].Contains(value))
-                    return ind;
-            }
-            if (type == typeof(CustomStructure))
-            {
-                ind = HashCustomStructure((CustomStructure)(object)value);
+                    if (hash[ind].Contains(value))
+                        return ind;
+                }
+                if (type == typeof(CustomStructure))
+                {
+                    ind = HashCustomStructure((CustomStructure)(object)value);
 
-                if (option)
-                    hash[ind].Add(value);
+                    if (option)
+                        hash[ind].AddLast(value);
 
-                if (hash[ind].Contains(value))
-                    return ind;
+                    if (hash[ind].Contains(value))
+                        return ind;
+                }
+                // If no hashing is implemented for the type
+                throw new InvalidOperationException($"No hashing function implemented for type {type}");
             }
             return -1;
         }
@@ -194,9 +216,9 @@ namespace Algorithms.Data
             if (ratio > 0.9) // If the table is too full, double its size
             {
                 m *= 2;
-                hash = new List<T>[m];
+                hash = new LinkedList<T>[m];
                 for (int i = 0; i < m; i++)
-                    hash[i] = new List<T>();
+                    hash[i] = new LinkedList<T>();
 
                 // Rehash all elements in the new table
                 for (int i = 0; i < hashTemp.Length; i++)
@@ -208,9 +230,9 @@ namespace Algorithms.Data
             else if (ratio < 0.3) // If the table is too empty, halve its size
             {
                 m /= 2;
-                hash = new List<T>[m];
+                hash = new LinkedList<T>[m];
                 for (int i = 0; i < m; i++)
-                    hash[i] = new List<T>();
+                    hash[i] = new LinkedList<T>();
 
                 // Rehash all elements in the new table
                 for (int i = 0; i < hashTemp.Length; i++)

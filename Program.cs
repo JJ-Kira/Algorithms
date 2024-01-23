@@ -5,13 +5,13 @@
 //#define QUEEN
 //#define H_KNIGHT
 //#define H_QUEEN
-//#define HASH
+#define HASH
 //#define KRUSKAL
 //#define IICNF
 //#define BAP
 //#define TARJAN
 //#define MF
-#define KMP
+//#define KMP
 
 using Algorithms.Transfomations;
 using Algorithms.Chess;
@@ -21,6 +21,7 @@ using System.Reflection;
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Data;
 
 namespace Algorithm
 {
@@ -277,6 +278,9 @@ namespace Algorithm
             hashTable1.HashInsert(ints1);
             hashTable0.HashInsert(doubles1);
             hashTable2.PrintHashTable();
+
+            //Hash<MyType> myHash = new Hash<MyType>();
+            //myHash.AddCustomHashFunction(typeof(MyType), value => MyCustomHashFunction(value));
 
             Console.WriteLine();
             Console.WriteLine("===========================================");
