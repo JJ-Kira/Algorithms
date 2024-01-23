@@ -10,7 +10,8 @@
 //#define IICNF
 //#define BAP
 //#define TARJAN
-#define NET
+//#define MF
+#define KMP
 
 using Algorithms.Transfomations;
 using Algorithms.Chess;
@@ -18,6 +19,8 @@ using Algorithms.Data;
 using Algorithms.Graphs;
 using System.Reflection;
 using System;
+using System.Diagnostics;
+using System.Text;
 
 namespace Algorithm
 {
@@ -426,6 +429,7 @@ namespace Algorithm
             //graphAP.PrintGraph();
             ArticulationPoints aps = new ArticulationPoints(graphAP);
             aps.FindArticulationPoints();
+
             Console.WriteLine();
             Console.WriteLine("===========================================");
             Console.WriteLine();
@@ -530,6 +534,10 @@ namespace Algorithm
             Tarjan tarjan = new Tarjan(graph);
             tarjan.FindStronglyConnectedComponents();
             tarjan.PrintStronglyConnectedComponents();
+
+            Console.WriteLine();
+            Console.WriteLine("===========================================");
+            Console.WriteLine();
 #endif
 
             // Zadanie 10 - Znajdowanie maksymalnego przepływu metodą nieprzedpływową
@@ -610,7 +618,7 @@ namespace Algorithm
             // https://www.geeksforgeeks.org/introduction-to-push-relabel-algorithm/
             // https://www.geeksforgeeks.org/push-relabel-algorithm-set-2-implementation/
 
-#if NET
+#if MF
             string filePath = @"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\mf_graph.txt";
             bool isDirected = true;
 
@@ -626,6 +634,94 @@ namespace Algorithm
             int maxFlow = mf.CalculateMaximumFlow(source, sink);
 
             Console.WriteLine($"The maximum possible flow is: {maxFlow}");
+#endif
+
+            // Zadanie 11 - KMP
+
+            // Algorytm Knutha-Morrisa-Pratta (KMP) - wyszukiwanie wzorca w ciągu znaków
+
+            // 1. Faza przetwarzania wstępnego: Algorytm przetwarza wzorzec, tworząc tablicę częściowych dopasowań (tzw. funkcję awarii).
+            // Tablica ta zawiera informacje, jak daleko algorytm powinien przesunąć się w przód po wystąpieniu niezgodności.
+            // 2. Faza wyszukiwania: Algorytm porównuje znaki ciągu wejściowego ze znakami wzorca. W przypadku niezgodności,
+            // zamiast zaczynać od początku wzorca, KMP używa funkcji awarii do pominięcia niewykonalnych dopasowań.
+            // 3. Efektywność: KMP znacznie zwiększa efektywność w porównaniu z naiwnymi metodami wyszukiwania, ponieważ w najgorszym przypadku
+            // każdy znak ciągu tekstowego jest porównywany tylko raz (złożoność czasowa O(n)).
+            // 4. Zastosowania: Algorytm jest szeroko stosowany w informatyce, szczególnie w edycji tekstu, odzyskiwaniu danych i bioinformatyce.
+
+            // KMP wykorzystuje "pamiętanie" informacji z poprzednich porównań znaków, co znacznie redukuje liczbę porównań i sprawia, że jest
+            // efektywny przy przeszukiwaniu długich ciągów z powtarzającymi się wzorcami.
+
+            /*
+             * Porównanie algorytmów wyszukiwania wzorca w tekście: Naiwny vs Knuth-Morris-Pratt (KMP)
+             *
+             * Naiwne wyszukiwanie:
+             * 1. Przesuń wzorzec po każdym znaku tekstu.
+             * 2. Dla każdej pozycji porównaj wzorzec z odpowiadającym fragmentem tekstu.
+             * 3. Jeśli wszystkie znaki wzorca pasują, zwróć bieżącą pozycję.
+             * 4. W przeciwnym razie, kontynuuj przesuwanie wzorca.
+             *
+             * Wyszukiwanie KMP:
+             * 1. Wstępnie przetwórz wzorzec, tworząc tablicę najdłuższych prefiksów, które są sufiksami (LPS).
+             * 2. Przesuwaj wzorzec wzdłuż tekstu, używając tablicy LPS do skoków, unikając niepotrzebnych porównań.
+             * 3. Porównuj znaki wzorca z tekstem; w przypadku niezgodności, użyj LPS, aby ustalić, gdzie wzorzec powinien zostać wznowiony.
+             * 4. Jeśli doszło do pełnego dopasowania, zwróć pozycję początkową wzorca w tekście.
+             *
+             * Porównanie:
+             * - Naiwne wyszukiwanie jest proste, ale mniej efektywne, szczególnie przy długich tekstach i wzorcach z powtarzającymi się znakami.
+             * - Wyszukiwanie KMP jest bardziej złożone, ale znacznie szybsze niż metoda naiwna. Jest efektywne dla długich tekstów i wzorców z powtarzającymi się znakami, ponieważ unika powtarzania porównań.
+             * - KMP redukuje liczbę porównań dzięki wykorzystaniu wiedzy o wzorcu (tablica LPS), podczas gdy metoda naiwna wymaga porównania każdego znaku wzorca z każdym znakiem tekstu.
+             * - W kontekście złożoności czasowej: Naiwne wyszukiwanie ma złożoność O(n*m), gdzie n to długość tekstu, a m długość wzorca. Wyszukiwanie KMP ma złożoność O(n+m).
+             */
+
+#if KMP
+            var random = new Random();
+            var textLengths = new int[] { 10000000, 100000000, 1000000000 }; // Different lengths of texts
+            var patternLengths = new int[] { 5, 20, 40, 100 }; // Different lengths of patterns
+
+            // Print table header
+            Console.WriteLine("{0,15} | {1,15} | {2,20} | {3,20}", "Text Length", "Pattern Length", "Normal Search (ms)", "KMP Search (ms)");
+            Console.WriteLine(new string('-', 90));
+
+            foreach (var textLength in textLengths)
+            {
+                foreach (var patternLength in patternLengths)
+                {
+                    // Ensure pattern length does not exceed text length
+                    if (patternLength > textLength)
+                        continue;
+
+                    // Generate a random text
+                    var text = GenerateRandomString(random, textLength);
+
+                    // Generate a random pattern
+                    var pattern = GenerateRandomString(random, patternLength);
+
+                    var search = new Search(text);
+
+                    // Measure time for NormalSearch
+                    var stopwatch = Stopwatch.StartNew();
+                    search.NormalSearch(pattern);
+                    stopwatch.Stop();
+                    var normalSearchTime = stopwatch.ElapsedMilliseconds;
+
+                    // Measure time for KMP
+                    stopwatch.Restart();
+                    search.KMP(pattern);
+                    stopwatch.Stop();
+                    var kmpSearchTime = stopwatch.ElapsedMilliseconds;
+
+                    // Print results in table row
+                    Console.WriteLine("{0,15} | {1,15} | {2,20} | {3,20}", textLength, patternLength, normalSearchTime, kmpSearchTime);
+                }
+            }
+
+            static string GenerateRandomString(Random random, int length)
+            {
+                var stringBuilder = new StringBuilder();
+                for (int i = 0; i < length; i++)
+                    stringBuilder.Append((char)('a' + random.Next(0, 26)));
+                return stringBuilder.ToString();
+            }
 #endif
         }
     }
