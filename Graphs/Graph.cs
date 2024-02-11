@@ -247,6 +247,8 @@ namespace Algorithms.Graphs
         public int h; // Height of the vertex
         public int excessFlow; // Excess flow at the vertex
 
+        public Vertex ancestor;
+
         public Vertex(int number) => this.num = number;
 
         public Vertex(int number, int excessFlow)

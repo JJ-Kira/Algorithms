@@ -9,8 +9,8 @@
 //#define KRUSKAL
 //#define IICNF
 //#define BAP
-//#define TARJAN
-#define MF
+#define TARJAN
+//#define MF
 //#define KMP
 
 using Algorithms.Transfomations;
@@ -529,6 +529,39 @@ namespace Algorithm
             // Algorytm efektywnie identyfikuje wszystkie silnie spójne składowe w jednym przejściu przez graf, co czyni go potężnym narzędziem w
             // analizie grafów.
 
+            /*
+             * Metoda Tarjana dla Najniższego Wspólnego Przodka (LCA)
+             * 
+             * Algorytm Tarjana pozwala na znalezienie LCA dla wszystkich par wierzchołków w drzewie
+             * przy użyciu techniki Union-Find. Algorytm działa w czasie liniowym względem liczby wierzchołków
+             * i zapytań, czyli O(N+Q), gdzie N to liczba wierzchołków, a Q to liczba zapytań.
+             * 
+             * KROKI ALGORYTMU:
+             * 1. Przetwarzaj wierzchołki w porządku DFS (Depth-First Search).
+             * 2. Gdy odwiedzasz wierzchołek, oznacz go jako element własnego zbioru za pomocą operacji Make-Set.
+             * 3. Po przetworzeniu wszystkich dzieci wierzchołka, oznacz go jako przetworzony i połącz jego zbiór
+             *    z zbiorem jego rodzica (operacja Union).
+             * 4. Dla każdego zapytania (u, v), jeśli oba wierzchołki zostały już przetworzone, znajdź ich najniższego
+             *    wspólnego przodka korzystając z operacji Find-Set.
+             * 
+             * WYMAGANE STRUKTURY DANYCH:
+             * - Union-Find: do efektywnego łączenia zbiorów wierzchołków i odnajdywania reprezentantów zbiorów.
+             * - Lista zapytań dla każdego wierzchołka: przechowuje zapytania, w których dany wierzchołek występuje jako jeden z argumentów.
+             * - Oznaczenia przetworzonych wierzchołków: do sprawdzania, czy dany wierzchołek został już przetworzony.
+             * 
+             * UWAGI:
+             * - Algorytm zakłada, że wszystkie zapytania są dostępne przed rozpoczęciem przetwarzania.
+             * - Jest to metoda offline, co oznacza, że zapytania o LCA muszą być znane z góry, przed wykonaniem algorytmu.
+             * - Union-Find wymaga implementacji operacji Make-Set, Union i Find-Set.
+             * 
+             * PRZYKŁAD UŻYCIA:
+             * Aby użyć algorytmu Tarjana dla LCA, należy najpierw przygotować strukturę drzewa, listę zapytań LCA oraz zainicjować struktury
+             * danych dla Union-Find. Następnie, wykonując DFS na drzewie, aplikujemy powyższe kroki algorytmu.
+             * 
+             * https://en.wikipedia.org/wiki/Tarjan%27s_off-line_lowest_common_ancestors_algorithm
+             */
+
+
 #if TARJAN
             string filePath = @"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\tarjan_graph.txt";
             bool isDirected = true;
@@ -539,6 +572,22 @@ namespace Algorithm
             Tarjan tarjan = new Tarjan(graph);
             tarjan.FindStronglyConnectedComponents();
             tarjan.PrintStronglyConnectedComponents();
+
+            filePath = @"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\t_graph.txt";
+            isDirected = true;
+
+            graph = new Graph(filePath, isDirected);
+            graph.PrintGraph();
+            tarjan = new Tarjan(graph);
+
+            List<Tuple<int, int>> list = new List<Tuple<int, int>>();
+            list.Add(new Tuple<int, int>(1, 2));
+            list.Add(new Tuple<int, int>(3, 4));
+            list.Add(new Tuple<int, int>(2, 5));
+            list.Add(new Tuple<int, int>(8, 7));
+            list.Add(new Tuple<int, int>(2, 8));
+
+            tarjan.FindNearestCommonAncestor(list);
 
             Console.WriteLine();
             Console.WriteLine("===========================================");
