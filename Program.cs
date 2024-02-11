@@ -5,12 +5,12 @@
 //#define QUEEN
 //#define H_KNIGHT
 //#define H_QUEEN
-#define HASH
+//#define HASH
 //#define KRUSKAL
 //#define IICNF
 //#define BAP
 //#define TARJAN
-//#define MF
+#define MF
 //#define KMP
 
 using Algorithms.Transfomations;
@@ -22,6 +22,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Data;
+using System.Security.Cryptography;
 
 namespace Algorithm
 {
@@ -566,7 +567,7 @@ namespace Algorithm
              * która może zostać przesłana z węzła źródłowego do węzła docelowego w sieci grafu, przy czym każda krawędź w sieci ma określoną
              * pojemność, która ogranicza przepływ przez nią. Istnieją różne metody rozwiązania tego problemu, które można podzielić na dwie główne kategorie:
              *
-             * 1. Metody przedprzepływowe (pre-flow methods):
+             * 1. Metody nie-przedprzepływowe (non-pre-flow methods):
              *    - Algorytm Forda-Fulkersona: to jedna z najstarszych metod, wykorzystująca pojęcie ścieżki powiększającej. Polega na szukaniu ścieżek
              *      od źródła do ujścia i "wysyłaniu" przepływu wzdłuż tych ścieżek, aż do osiągnięcia pojemności krawędzi.
              *    - Algorytm Edmondsa-Karpa: to wariant algorytmu Forda-Fulkersona, który wybiera ścieżki powiększające w sposób bardziej zorganizowany,
@@ -576,7 +577,7 @@ namespace Algorithm
              *      a traditional pre-flow algorithm. It's true that it uses the concept of augmenting paths, similar to pre-flow methods like the Ford-Fulkerson 
              *      algorithm. However, Dinic's algorithm differs significantly in its approach.
              *
-             * 2. Metody nie-przedprzepływowe (non-pre-flow methods):
+             * 2. Metody przedprzepływowe (pre-flow methods):
              *    - Algorytm Push-Relabel: różni się od metod przedprzepływowych tym, że zamiast szukać ścieżek od źródła do ujścia, pracuje lokalnie
              *      na wierzchołkach, "przesuwając" przepływ (push) i aktualizując etykiety wierzchołków (relabel) w celu zwiększenia przepływu.
              *    - Algorytm Goldberg-Tarjana: to wariant algorytmu Push-Relabel, który używa specjalnej heurystyki do wyboru kolejnych wierzchołków
@@ -622,6 +623,33 @@ namespace Algorithm
             // https://www.geeksforgeeks.org/introduction-to-push-relabel-algorithm/
             // https://www.geeksforgeeks.org/push-relabel-algorithm-set-2-implementation/
 
+            // Algorytm Forda-Fulkersona - Opis działania i najważniejsze kroki:
+            //
+            // Algorytm Forda-Fulkersona służy do znajdowania maksymalnego przepływu w sieci przepływowej.
+            // Jest to metoda iteracyjna, która wykorzystuje pojęcie ścieżek powiększających do zwiększania wartości przepływu od źródła do ujścia.
+            //
+            // Kroki algorytmu:
+            // 1. Inicjalizacja: Rozpoczynamy od przypisania zerowego przepływu wszystkim krawędziom w sieci.
+            // 2. Szukanie ścieżki powiększającej: W każdej iteracji szukamy ścieżki z źródła do ujścia (ścieżki powiększającej),
+            //    po której można przesłać dodatkowy przepływ. 
+            //    Ścieżkę taką znajdujemy za pomocą przeszukiwania wszerz (BFS) lub przeszukiwania w głąb (DFS).
+            // 3. Aktualizacja przepływu: Gdy znajdziemy ścieżkę powiększającą, zwiększamy przepływ wzdłuż tej ścieżki o najmniejszą wartość
+            //    przepustowości na ścieżce (wąskie gardło).
+            // 4. Powtórzenie: Proces jest powtarzany, dopóki nie można znaleźć więcej ścieżek powiększających, co oznacza, że znaleziono
+            //    maksymalny przepływ.
+            //
+            // Algorytm kończy działanie, gdy nie można znaleźć więcej ścieżek powiększających, a znaleziony przepływ jest maksymalny.
+            // Jest to metoda efektywna, lecz jej wydajność może zależeć od sposobu wyszukiwania ścieżek powiększających.
+            //
+            // Ważne jest, aby zauważyć, że algorytm Forda-Fulkersona może wpadać w nieskończoną pętlę, jeśli sieć przepływowa zawiera
+            // krawędzie o przepustowościach rzeczywistych (np. liczbach wymiernych), dlatego często stosuje się jego wariant, algorytm Edmondsa-Karpa,
+            // który gwarantuje znalezienie rozwiązania w czasie wielomianowym.
+            //
+            // Aby zainicjować graf rezydualny, potrzebujemy funkcji, która skopiuje strukturę oryginalnego grafu i zainicjuje wszystkie przepustowości
+            // krawędzi na 0 lub na początkową przepustowość krawędzi z oryginalnego grafu. Dodatkowo, dla każdej krawędzi w oryginalnym grafie,
+            // powinniśmy dodać krawędź w przeciwnym kierunku w grafie rezydualnym z przepustowością 0, aby umożliwić przepływ zwrotny.
+
+
 #if MF
             string filePath = @"C:\Users\julia\OneDrive\Dokumenty\GitHub\Algorithms-II\Graphs\mf_graph.txt";
             bool isDirected = true;
@@ -635,9 +663,10 @@ namespace Algorithm
 
             // Initialize and execute the Goldberg-Tarjan algorithm
             MaximumFlow mf = new MaximumFlow(graph);
-            int maxFlow = mf.CalculateMaximumFlow(source, sink);
-
-            Console.WriteLine($"The maximum possible flow is: {maxFlow}");
+            int maxFlow = mf.CalculateMaximumFlowPR(source, sink);
+            Console.WriteLine($"The maximum possible flow is (PR method): {maxFlow}");
+            maxFlow = mf.CalculateMaximumFlowFF(source, sink);
+            Console.WriteLine($"The maximum possible flow is (FF method): {maxFlow}");
 #endif
 
             // Zadanie 11 - KMP

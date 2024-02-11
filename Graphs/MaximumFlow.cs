@@ -6,6 +6,9 @@
         private List<Vertex> vertices; // List to store vertices with their properties for the algorithm
         private List<Edge> edges; // List of edges in the graph
 
+        private Graph residualGraph;
+        private int N;
+
         // Constructor
         public MaximumFlow(Graph graph)
         {
@@ -24,8 +27,8 @@
             }
         }
 
-        // Calculates the maximum flow from source to sink
-        public int CalculateMaximumFlow(int source, int sink)
+        // Function to calculate maximum flow using Push-Relabel algorithm
+        public int CalculateMaximumFlowPR(int source, int sink)
         {
             Preflow(source); // Initialize preflow
 
@@ -132,6 +135,83 @@
 
             // If no reverse edge found, create a new one
             edges.Add(new Edge(edge.VertexEnd, edge.VertexStart, flow));
+        }
+
+        // Function to calculate maximum flow using Ford-Fulkerson algorithm
+        public int CalculateMaximumFlowFF(int source, int sink)
+        {
+            // Initialize residual graph and set up for Ford-Fulkerson
+            N = graph.vertices.Count;
+            InitializeResidualGraph(N); // Initialize residual graph with reverse edges
+
+            int maxFlow = 0; // Start with 0 flow
+            int[] parent = new int[N]; // Array to store path from source to sink
+
+            // Main loop of Ford-Fulkerson: Find augmenting paths and update flows
+            while (BFS(source, sink, parent))
+            {
+                // Find minimum residual capacity of the edges along the path filled by BFS
+                int pathFlow = int.MaxValue;
+                for (int v = sink; v != source; v = parent[v])
+                {
+                    int u = parent[v];
+                    int cost = residualGraph.edges.First(x => x.VertexStart == u && x.VertexEnd == v).Weight;
+                    pathFlow = Math.Min(pathFlow, cost);
+                }
+
+                // Update residual capacities of the edges and reverse edges along the path
+                for (int v = sink; v != source; v = parent[v])
+                {
+                    int u = parent[v];
+                    residualGraph.edges.First(x => x.VertexStart == u && x.VertexEnd == v).Weight -= pathFlow;
+                    residualGraph.edges.First(x => x.VertexStart == v && x.VertexEnd == u).Weight += pathFlow;
+                }
+
+                maxFlow += pathFlow; // Add path flow to overall flow
+            }
+            return maxFlow; // Return the total flow as maximum flow
+        }
+
+        // BFS to find path from source to sink with positive residual capacity; updates parent[] to store the path
+        bool BFS(int s, int t, int[] parent)
+        {
+            bool[] visited = new bool[N]; // Keep track of visited vertices
+            Queue<int> queue = new Queue<int>(); // Queue for BFS
+            queue.Enqueue(s);
+            visited[s] = true;
+            parent[s] = -1; // Source has no parent
+
+            // Standard BFS loop
+            while (queue.Count != 0)
+            {
+                int u = queue.Dequeue();
+                foreach (var v in residualGraph.vertices.First(x => x.num == u).neighbors)
+                {
+                    int edgeCost = residualGraph.edges.First(x => x.VertexStart == u && x.VertexEnd == v).Weight;
+                    if (!visited[v] && edgeCost > 0)
+                    {
+                        queue.Enqueue(v);
+                        parent[v] = u; // Store the path
+                        visited[v] = true;
+                        if (v == t) return true; // If sink is reached
+                    }
+                }
+            }
+            return false; // No augmenting path found
+        }
+
+        // Initializes the residual graph for Ford-Fulkerson algorithm
+        private void InitializeResidualGraph(int N)
+        {
+            // Copy original graph to residual graph and add reverse edges with 0 capacity
+            residualGraph = graph;
+            foreach (var edge in graph.edges.ToArray())
+            {
+                if (!residualGraph.edges.Any(e => e.VertexStart == edge.VertexEnd && e.VertexEnd == edge.VertexStart))
+                {
+                    residualGraph.AddEdge(edge.VertexEnd, edge.VertexStart, 0); // Add reverse edge
+                }
+            }
         }
     }
 }
